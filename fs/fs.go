@@ -18,7 +18,7 @@ func NewFileSystem(path string) *FileSystem {
 
 func (fs *FileSystem) Touch(filename string, data []byte) error {
 
-	f, err := os.Create(fmt.Sprintf("%s/%s.secret", fs.path, filename))
+	f, err := os.Create(secret(fs.path, filename))
 	if err != nil {
 		return err
 	}
@@ -31,10 +31,24 @@ func (fs *FileSystem) Touch(filename string, data []byte) error {
 
 func (fs *FileSystem) Read(filename string) ([]byte, error) {
 
-	data, err := ioutil.ReadFile(fmt.Sprintf("%s/%s.secret", fs.path, filename))
+	data, err := ioutil.ReadFile(secret(fs.path, filename))
 	if err != nil {
 		return nil, err
 	}
 
 	return data, nil
+}
+
+func (fs *FileSystem) Delete(filename string) error {
+
+	err := os.Remove(secret(fs.path, filename))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func secret(p, f string) string {
+	return fmt.Sprintf("%s/%s.secret", p, f)
 }

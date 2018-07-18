@@ -16,12 +16,12 @@ import (
 var logR = logger.Namespace("kripto.router")
 
 const (
-	path           = "/data/secrets"
-	tmp_passphrase = "avocado"
+	path = "/data/secrets"
 )
 
 type (
 	Router struct {
+		phrase string
 	}
 
 	Health struct {
@@ -29,8 +29,8 @@ type (
 	}
 )
 
-func NewRouter() *Router {
-	return &Router{}
+func NewRouter(phrase string) *Router {
+	return &Router{phrase}
 }
 
 func (router *Router) Health(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -65,7 +65,7 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 	}
 
 	symmetrical := algo.NewSymmetrical()
-	cypher, err := symmetrical.Encrypt(jsec, tmp_passphrase)
+	cypher, err := symmetrical.Encrypt(jsec, router.phrase)
 	if err != nil {
 		logR.Error("Encrypt error: %v", err)
 	}
@@ -97,7 +97,7 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 
 		symmetrical := algo.NewSymmetrical()
 
-		b, err = symmetrical.Decrypt(data, tmp_passphrase)
+		b, err = symmetrical.Decrypt(data, router.phrase)
 		if err != nil {
 			logR.Error("Decrypt error: %v", err)
 		}
@@ -107,4 +107,20 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", string(b))
+}
+
+func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	app := r.URL.Query().Get("app")
+
+	sys := fs.NewFileSystem(path)
+
+	err := sys.Delete(app)
+	if err != nil {
+		logR.Error("Delete error: %v", err)
+	}
+
+	// Write content-type, statuscode, payload
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -14,16 +14,18 @@ func main() {
 	var logH = logger.Namespace("kripto")
 
 	var addr = os.Getenv("KRIPTO_ADDRESS")
+	var phrase = os.Getenv("PHRASE")
 
 	// Instantiate a new router
 	r := httprouter.New()
 
-	nr := routes.NewRouter()
+	nr := routes.NewRouter(phrase)
 
 	// health check
 	r.GET("/v1", nr.Health)
 	r.POST("/v1/secrets", nr.CreateSecret)
 	r.GET("/v1/secrets", nr.GetSecretsByApp)
+	r.DELETE("/v1/secrets", nr.RemoveSecretsByApp)
 
 	logH.Info("Running on %s", addr)
 
