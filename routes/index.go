@@ -9,7 +9,6 @@ import (
 	"github.com/ffhenkes/kripto/algo"
 	"github.com/ffhenkes/kripto/fs"
 	"github.com/ffhenkes/kripto/model"
-	"github.com/johnnadratowski/golang-neo4j-bolt-driver/log"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -42,7 +41,7 @@ func (router *Router) Health(w http.ResponseWriter, r *http.Request, p httproute
 
 	h, err := json.Marshal(health)
 	if err != nil {
-		log.Error("Json parser return with errors: %v", err)
+		logR.Error("Json parser return with errors: %v", err)
 	}
 
 	// Write content-type, statuscode, payload
