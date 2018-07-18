@@ -3,9 +3,8 @@ package algo
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
+	"crypto/sha256"
 	"io"
 )
 
@@ -20,7 +19,7 @@ func NewSymmetrical() *Symmetrical {
 
 func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
-	block, _ := aes.NewCipher([]byte(makeSimpleHash(passphrase)))
+	block, _ := aes.NewCipher(makeSimpleHash(passphrase))
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return nil, err
@@ -35,7 +34,7 @@ func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
 func (s *Symmetrical) Decrypt(data []byte, passphrase string) ([]byte, error) {
 
-	key := []byte(makeSimpleHash(passphrase))
+	key := makeSimpleHash(passphrase)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -53,8 +52,7 @@ func (s *Symmetrical) Decrypt(data []byte, passphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
-func makeSimpleHash(key string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(key))
-	return hex.EncodeToString(hasher.Sum(nil))
+func makeSimpleHash(key string) []byte {
+	hash := sha256.Sum256([]byte(key))
+	return hash[:]
 }
