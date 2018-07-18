@@ -1,0 +1,29 @@
+* Kripto
+
+This a simple PoC to encrypt and create secrets to a file and also decrypt and retrieve these from file.
+
+** Usage
+
+Create secrets for an app
+
+#+BEGIN_EXAMPLE
+curl -v \
+  -XPOST \
+  -d '{
+  "app": "sample_app",
+  "vars": {
+     "MONGO_URI": "mongodb://localhost:27017/sample",
+     "MONGO_USER": "sampler",
+     "MONGO_PASSWD": "onesamplepassword"
+  }
+}' \
+http://localhost:20800/v1/secrets
+#+END_EXAMPLE
+
+Retrieve secrets from an app
+
+#+BEGIN_EXAMPLE
+curl -v \
+  -XGET \
+http://localhost:20800/v1/secrets?app=sample_app
+#+END_EXAMPLE
