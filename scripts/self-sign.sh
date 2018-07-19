@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
 echo "Generating an SSL private key to sign your certificate..."
 openssl genrsa -des3 -out kripto-ssl.key 1024
 
