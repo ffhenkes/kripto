@@ -19,7 +19,7 @@ func NewSymmetrical() *Symmetrical {
 
 func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
-	block, _ := aes.NewCipher(makeSimpleHash(passphrase))
+	block, _ := aes.NewCipher(MakeSimpleHash(passphrase))
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
 func (s *Symmetrical) Decrypt(data []byte, passphrase string) ([]byte, error) {
 
-	key := makeSimpleHash(passphrase)
+	key := MakeSimpleHash(passphrase)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (s *Symmetrical) Decrypt(data []byte, passphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
-func makeSimpleHash(key string) []byte {
+func MakeSimpleHash(key string) []byte {
 	hash := sha256.Sum256([]byte(key))
 	return hash[:]
 }

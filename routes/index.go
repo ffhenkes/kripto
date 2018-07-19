@@ -71,7 +71,7 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 	}
 
 	sys := fs.NewFileSystem(path)
-	err = sys.Touch(sec_request.App, cypher)
+	err = sys.MakeSecret(sec_request.App, cypher)
 	if err != nil {
 		logR.Error("Touch error: %v", err)
 	}
@@ -87,7 +87,7 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 
 	sys := fs.NewFileSystem(path)
 
-	data, err := sys.Read(app)
+	data, err := sys.ReadSecret(app)
 	if err != nil {
 		logR.Error("Read error: %v", err)
 	}
@@ -115,7 +115,7 @@ func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request,
 
 	sys := fs.NewFileSystem(path)
 
-	err := sys.Delete(app)
+	err := sys.DeleteSecret(app)
 	if err != nil {
 		logR.Error("Delete error: %v", err)
 	}

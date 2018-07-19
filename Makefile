@@ -11,14 +11,19 @@ test:
 
 build:
 	cd cmd/kserver && make -e build
+build-cli:
+	cd cmd/kclient && make -e build
 
 run: build
 	cd cmd/kserver && make -e run
 
+cli: build-cli
+	cd cmd/kclient && make -e run
+
 certificates:
 	./scripts/self-sign
 
-wrap: build
+wrap: build build-cli
 	docker build -t $(IMAGE):$(TAG) .
 
 docker-clean:
