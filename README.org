@@ -3,13 +3,39 @@
 This a simple PoC to encrypt and create secrets to a file and also decrypt and retrieve these from file.
 Kripto uses self-signed certificates to keep things wrapped under ssl. One can always replace those with an actual valid CA.
 
-** Usage
+** SSL
 
 Generate self-signed certificates running:
 
 #+BEGIN_EXAMPLE
 make certificates
 #+END_EXAMPLE
+
+** Build
+
+#+BEGIN_EXAMPLE
+make build
+#+END_EXAMPLE
+
+** Run
+
+#+BEGIN_EXAMPLE
+make run
+#+END_EXAMPLE
+
+** Build container
+
+#+BEGIN_EXAMPLE
+make wrap
+#+END_EXAMPLE
+
+** Run within container
+
+#+BEGIN_EXAMPLE
+make docker-run
+#+END_EXAMPLE
+
+** Usage
 
 Create secrets for an app
 
