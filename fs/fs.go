@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-
-	"github.com/NeowayLabs/logger"
 )
 
 type (
@@ -19,7 +17,7 @@ func NewFileSystem(path string) *FileSystem {
 }
 
 func (fs *FileSystem) MakeAuth(filename string, data []byte) error {
-	logger.Info("%s", filename)
+
 	err := touch(authdb(fs.path, filename), data)
 	if err != nil {
 		return err

@@ -75,13 +75,7 @@ func main() {
 			return res
 		}
 
-		for i, _ := range args {
-			if i != 0 {
-				res += " "
-			}
-			res += "\"" + user + "@***********\""
-		}
-
+		res = "\"" + user + "@***********\""
 		return fmt.Sprintf("User added successfully %s", res)
 	})
 

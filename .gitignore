@@ -1,5 +1,5 @@
 *~
 \#.*
 cmd/kserver/kserver
-cmd/kserver/kripto
+cmd/kclient/kripto
 ssl/*
