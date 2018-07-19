@@ -47,9 +47,9 @@ curl -v -k \
   -d '{
   "app": "sample_app",
   "vars": {
-     "MONGO_URI": "mongodb://localhost:27017/sample",
-     "MONGO_USER": "sampler",
-     "MONGO_PASSWD": "onesamplepassword"
+     "SAMPLE_URI": "db://localhost:27017/sample",
+     "SAMPLE_USER": "sampler",
+     "SAMPLE_PASSWD": "onesamplepassword"
   }
 }' \
 https://localhost:20443/v1/secrets
