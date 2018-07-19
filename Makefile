@@ -1,5 +1,5 @@
-include kripto.env
-export $(shell sed 's/=.*//' kripto.env)
+include docker.env
+export $(shell sed 's/=.*//' docker.env)
 
 all: build test
 
@@ -12,8 +12,11 @@ test:
 build:
 	cd cmd/kserver && make -e build
 
-run:
+run: build
 	cd cmd/kserver && make -e run
+
+certificates:
+	./scripts/self-sign
 
 wrap: build
 	docker build -t $(IMAGE):$(TAG) .
@@ -22,5 +25,5 @@ docker-clean:
 	docker rm -f $(NAME) | true
 
 docker-run: docker-clean
-	docker run --net=host -d -ti --name=$(NAME) -e KRIPTO_ADDRESS=$(KRIPTO_ADDRESS) --volume=$(HOST_VOLUME):/data/secrets $(IMAGE):$(TAG)
+	docker run --net=host -d -ti --name=$(NAME) --env-file=$(NAME).env --volume=$(HOST_VOLUME):/data/secrets $(IMAGE):$(TAG)
 	docker logs -f $(NAME)

@@ -1,15 +1,22 @@
 * Kripto
 
 This a simple PoC to encrypt and create secrets to a file and also decrypt and retrieve these from file.
+Kripto uses self-signed certificates to keep things wrapped under ssl. One can always replace those with an actual valid CA.
 
 ** Usage
+
+Generate self-signed certificates running:
+
+#+BEGIN_EXAMPLE
+make certificates
+#+END_EXAMPLE
 
 Create secrets for an app
 
 Returns *201 - Created*
 
 #+BEGIN_EXAMPLE
-curl -v \
+curl -v -k \
   -XPOST \
   -d '{
   "app": "sample_app",
@@ -19,7 +26,7 @@ curl -v \
      "MONGO_PASSWD": "onesamplepassword"
   }
 }' \
-http://localhost:20800/v1/secrets
+https://localhost:20443/v1/secrets
 #+END_EXAMPLE
 
 Retrieve secrets from an app
@@ -27,9 +34,9 @@ Retrieve secrets from an app
 Returns *200 - Ok*
 
 #+BEGIN_EXAMPLE
-curl -v \
+curl -v -k \
   -XGET \
-http://localhost:20800/v1/secrets?app=sample_app
+https://localhost:20443/v1/secrets?app=sample_app
 #+END_EXAMPLE
 
 Remove secrets from an app
@@ -37,7 +44,7 @@ Remove secrets from an app
 Returns *204 - No Content*
 
 #+BEGIN_EXAMPLE
-curl -v \
+curl -v -k \
   -XDELETE \
-http://localhost:20800/v1/secrets?app=sample_app
+https://localhost:20443/v1/secrets?app=sample_app
 #+END_EXAMPLE

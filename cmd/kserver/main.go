@@ -15,6 +15,8 @@ func main() {
 
 	var addr = os.Getenv("KRIPTO_ADDRESS")
 	var phrase = os.Getenv("PHRASE")
+	var crt = os.Getenv("CRT_PATH")
+	var key = os.Getenv("KEY_PATH")
 
 	// Instantiate a new router
 	r := httprouter.New()
@@ -29,7 +31,7 @@ func main() {
 
 	logH.Info("Running on %s", addr)
 
-	if err := http.ListenAndServe(addr, r); err != nil {
+	if err := http.ListenAndServeTLS(addr, crt, key, r); err != nil {
 		logH.Fatal("ListenAndServe: %s", err)
 	}
 }

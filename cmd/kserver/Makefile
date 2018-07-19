@@ -1,5 +1,5 @@
-include kripto.env
-export $(shell sed 's/=.*//' kripto.env)
+include kserver.env
+export $(shell sed 's/=.*//' kserver.env)
 
 all: build test
 
