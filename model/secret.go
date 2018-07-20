@@ -15,7 +15,6 @@ type (
 
 	CustomClaims struct {
 		*jwt.StandardClaims
-		Username       string
-		HashedPassword string
+		Username string
 	}
 )

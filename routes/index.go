@@ -19,12 +19,13 @@ import (
 var logR = logger.Namespace("kripto.router")
 
 const (
-	data_secrets = "/data/secrets"
-	data_authdb  = "/data/authdb"
-	data_rsa     = "/data/rsa"
-	key_name     = "kripto.rsa"
-	sign_method  = "RS256"
-	time_frame   = 36000
+	data_secrets     = "/data/secrets"
+	data_authdb      = "/data/authdb"
+	data_rsa         = "/data/rsa"
+	private_key_name = "kripto.rsa"
+	public_key_name  = "kripto.rsa.pub"
+	sign_method      = "RS256"
+	time_frame       = 36000
 )
 
 type (
@@ -41,6 +42,7 @@ func NewRouter(phrase string) *Router {
 	return &Router{phrase}
 }
 
+// Health is a simple health check to verify the basic app running state
 func (router *Router) Health(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	health := Health{
@@ -52,12 +54,11 @@ func (router *Router) Health(w http.ResponseWriter, r *http.Request, p httproute
 		logR.Error("Json parser return with errors: %v", err)
 	}
 
-	// Write content-type, statuscode, payload
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	responseHeader(w, http.StatusOK)
 	fmt.Fprintf(w, "%s", h)
 }
 
+// Authenticate is a method for validating user and password returning a signed JWT with 24h expiration time
 func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	auth := model.Auth{}
@@ -79,9 +80,7 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 		msg := map[string]string{"msg": "Invalid username!"}
 		m, _ := json.Marshal(msg)
 
-		// Write content-type, statuscode, payload
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
+		responseHeader(w, http.StatusBadRequest)
 		fmt.Fprintf(w, "%s", m)
 		return
 	}
@@ -91,8 +90,7 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 	b, err = symmetrical.Decrypt(data, router.phrase)
 	if err != nil {
 		logR.Error("Decrypt error: %v", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusPreconditionFailed)
+		responseHeader(w, http.StatusPreconditionFailed)
 		return
 	}
 
@@ -105,7 +103,7 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 
 		rsys := fs.NewFileSystem(data_rsa)
 
-		privateKey, err := rsys.ReadKey(key_name)
+		privateKey, err := rsys.ReadKey(private_key_name)
 		if err != nil {
 			logR.Error("Read key error: %v", err)
 		}
@@ -116,7 +114,6 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 				ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 			},
 			auth.Username,
-			string(hashed_passwd),
 		}
 
 		signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
@@ -127,32 +124,33 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 		tokenString, err := token.SignedString(signKey)
 		if err != nil {
 			logR.Error("Error signing token: %v", err)
-			// Write content-type, statuscode, payload
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusExpectationFailed)
+			responseHeader(w, http.StatusExpectationFailed)
 			return
 		}
 
 		msg := map[string]string{"token": tokenString}
 		m, _ := json.Marshal(msg)
 
-		// Write content-type, statuscode, payload
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
+		responseHeader(w, http.StatusCreated)
 		fmt.Fprintf(w, "%s", m)
 		return
 	}
 
-	// Write content-type, statuscode, payload
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusUnauthorized)
+	responseHeader(w, http.StatusUnauthorized)
 }
 
+// CreateSecret records the requested secrets of an app into file system encripting those with a symmetrical algorithm
 func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	authorized, err := checkToken(r)
+	if !authorized && err != nil {
+		responseHeader(w, http.StatusUnauthorized)
+		return
+	}
 
 	sec_request := model.Secret{}
 
-	err := json.NewDecoder(r.Body).Decode(&sec_request)
+	err = json.NewDecoder(r.Body).Decode(&sec_request)
 	if err != nil {
 		logR.Error("Decode error: %v", err)
 	}
@@ -174,12 +172,23 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 		logR.Error("Touch error: %v", err)
 	}
 
-	// Write content-type, statuscode, payload
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	responseHeader(w, http.StatusCreated)
 }
 
+// GetSecretsByApp decrypts and returns the required secrets by app
 func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	authorized, err := checkToken(r)
+	if err != nil {
+		logR.Error("Can't validate token: %v", err)
+		responseHeader(w, http.StatusExpectationFailed)
+		return
+	}
+
+	if !authorized {
+		responseHeader(w, http.StatusUnauthorized)
+		return
+	}
 
 	app := r.URL.Query().Get("app")
 
@@ -201,24 +210,65 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 		}
 	}
 
-	// Write content-type, statuscode, payload
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	responseHeader(w, http.StatusOK)
 	fmt.Fprintf(w, "%s", string(b))
 }
 
+// RemoveSecretsByApp removes the required secret from the file system by app
 func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	authorized, err := checkToken(r)
+	if !authorized && err != nil {
+		responseHeader(w, http.StatusUnauthorized)
+		return
+	}
 
 	app := r.URL.Query().Get("app")
 
 	sys := fs.NewFileSystem(data_secrets)
 
-	err := sys.DeleteSecret(app)
+	err = sys.DeleteSecret(app)
 	if err != nil {
 		logR.Error("Delete error: %v", err)
 	}
 
-	// Write content-type, statuscode, payload
+	responseHeader(w, http.StatusNoContent)
+}
+
+// checkToken utilitary for token validation
+func checkToken(r *http.Request) (bool, error) {
+
+	sys := fs.NewFileSystem(data_rsa)
+
+	pub, err := sys.ReadKey(public_key_name)
+	if err != nil {
+		return false, err
+	}
+
+	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(pub)
+	if err != nil {
+		return false, err
+	}
+
+	tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
+	token, err := jwt.ParseWithClaims(tokenString, &model.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return verifyKey, nil
+	})
+
+	expires_at := time.Unix(token.Claims.(*model.CustomClaims).StandardClaims.ExpiresAt, 0)
+	username := token.Claims.(*model.CustomClaims).Username
+
+	if err != nil {
+		logR.Warn("User: %s Non valid token! Expires At: %v", username, expires_at)
+		return token.Valid, err
+	}
+
+	logR.Info("User: %s Token Expires At: %v", username, expires_at)
+	return token.Valid, nil
+}
+
+// responseHeader utilitary function to set the output response headers
+func responseHeader(w http.ResponseWriter, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(statusCode)
 }
