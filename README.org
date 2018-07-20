@@ -1,6 +1,7 @@
 * Kripto
 
-This is a simple PoC to encrypt and create secrets to a file and also decrypt and retrieve these from file.
+This is a simple app to encrypt and create secrets to a file and also decrypt and retrieve these from file. It uses JWT to enable access to its functionalities.
+
 Kripto uses self-signed certificates to keep things wrapped under ssl. One can always replace those with an actual valid CA.
 
 ** SSL
