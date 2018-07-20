@@ -37,6 +37,34 @@ make docker-run
 
 ** Usage
 
+Add user from kripto CLI
+
+#+BEGIN_EXAMPLE
+export PHRASE=$(cat .krpt)
+kripto
+
+Welcome to Kripto CLI! Type help for valid commands.
+<kripto>::@ add ffhenkes@test
+User added successfully "ffhenkes@***********"
+<kripto>::@ quit
+
+Good bye! Thank you for using Kripto!
+#+END_EXAMPLE
+
+Generate a JWT for further authentication
+
+Returns *201 - Created*
+
+#+BEGIN_EXAMPLE
+curl -v -k \
+  -XPOST \
+  -d '{
+  "username": "ffhenkes",
+  "password": "test"
+}' \
+https://localhost:20443/v1/authenticate
+#+END_EXAMPLE
+
 Create secrets for an app
 
 Returns *201 - Created*
@@ -44,6 +72,7 @@ Returns *201 - Created*
 #+BEGIN_EXAMPLE
 curl -v -k \
   -XPOST \
+  -H "Authorization: <your bearer token here>" \
   -d '{
   "app": "sample_app",
   "vars": {
@@ -62,6 +91,7 @@ Returns *200 - Ok*
 #+BEGIN_EXAMPLE
 curl -v -k \
   -XGET \
+  -H "Authorization: <your bearer token here>" \
 https://localhost:20443/v1/secrets?app=sample_app
 #+END_EXAMPLE
 
@@ -72,5 +102,6 @@ Returns *204 - No Content*
 #+BEGIN_EXAMPLE
 curl -v -k \
   -XDELETE \
+  -H "Authorization: <your bearer token here>" \
 https://localhost:20443/v1/secrets?app=sample_app
 #+END_EXAMPLE

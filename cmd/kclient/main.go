@@ -25,7 +25,7 @@ func main() {
 		logK.Fatal("Missing passphrase! Export <PHRASE> before continue!")
 	}
 
-	cli := gocli.MkCLI("Welcome Kripto CLI! Type help for valid commands.")
+	cli := gocli.MkCLI("Welcome to Kripto CLI! Type help for valid commands.")
 
 	// register help Option with cli.Help as callback
 	cli.AddOption("help", "prints this help message", cli.Help)
