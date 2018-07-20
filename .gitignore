@@ -3,3 +3,5 @@
 cmd/kserver/kserver
 cmd/kclient/kripto
 ssl/*
+.#*
+*#*

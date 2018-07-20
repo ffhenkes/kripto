@@ -7,11 +7,15 @@ ADD ./cmd/kserver/kserver /kserver
 ADD ./cmd/kclient/kripto /usr/bin/kripto
 ADD ./docker-entrypoint.sh /entrypoint.sh
 
-RUN apk add --no-cache util-linux \
+RUN apk add --no-cache util-linux openssl \
     && mkdir -p /data/secrets \
     && mkdir -p /data/authdb \
+    && mkdir -p /data/rsa \
     && uuidgen > .krpt \
     && chmod +x entrypoint.sh \
-    && chmod +x /usr/bin/kripto
+    && chmod +x /usr/bin/kripto \
+    && cd /data/rsa \
+    && openssl genrsa -out kripto.rsa 1024 \
+    && openssl rsa -in kripto.rsa -pubout > kripto.rsa.pub
 
 ENTRYPOINT /entrypoint.sh

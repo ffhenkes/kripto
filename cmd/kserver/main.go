@@ -25,6 +25,7 @@ func main() {
 
 	// health check
 	r.GET("/v1", nr.Health)
+	r.POST("/v1/authenticate", nr.Authenticate)
 	r.POST("/v1/secrets", nr.CreateSecret)
 	r.GET("/v1/secrets", nr.GetSecretsByApp)
 	r.DELETE("/v1/secrets", nr.RemoveSecretsByApp)

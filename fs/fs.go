@@ -46,6 +46,16 @@ func (fs *FileSystem) DeleteAuth(filename string) error {
 	return nil
 }
 
+func (fs *FileSystem) ReadKey(keyname string) ([]byte, error) {
+
+	key, err := read(rsa(fs.path, keyname))
+	if err != nil {
+		return nil, err
+	}
+
+	return key, nil
+}
+
 func (fs *FileSystem) MakeSecret(filename string, data []byte) error {
 	err := touch(secret(fs.path, filename), data)
 	if err != nil {
@@ -109,8 +119,12 @@ func del(out string) error {
 	return nil
 }
 
+func rsa(p, f string) string {
+	return fmt.Sprintf("%s/%s", p, f)
+}
+
 func authdb(p, f string) string {
-	return fmt.Sprintf("%s/%s.auth", p, f)
+	return fmt.Sprintf("%s/.%s.auth", p, f)
 }
 
 func secret(p, f string) string {

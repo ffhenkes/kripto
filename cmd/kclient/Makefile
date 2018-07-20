@@ -7,5 +7,4 @@ build:
 	$(PACKAGE)
 
 run:
-	export PHRASE=avocado
 	./kripto

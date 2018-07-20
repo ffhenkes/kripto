@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/NeowayLabs/logger"
 	"github.com/benthor/gocli"
 	"github.com/ffhenkes/kripto/algo"
 	"github.com/ffhenkes/kripto/fs"
@@ -16,11 +17,12 @@ const (
 
 func main() {
 
+	var logK = logger.Namespace("kripto.cli")
+
 	passphrase := os.Getenv("PHRASE")
 
 	if "" == passphrase {
-		fmt.Sprintf("Missing passphrase! Export <PHRASE> before continue!")
-		os.Exit(0)
+		logK.Fatal("Missing passphrase! Export <PHRASE> before continue!")
 	}
 
 	cli := gocli.MkCLI("Welcome Kripto CLI! Type help for valid commands.")
@@ -69,7 +71,7 @@ func main() {
 		}
 
 		sys := fs.NewFileSystem(path)
-		err = sys.MakeAuth(fmt.Sprintf(".%s", user), data)
+		err = sys.MakeAuth(fmt.Sprintf("%s", user), data)
 		if err != nil {
 			res = fmt.Sprintf("Error creating authentication for user: %s", user)
 			return res

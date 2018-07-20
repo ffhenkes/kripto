@@ -30,5 +30,5 @@ docker-clean:
 	docker rm -f $(NAME) | true
 
 docker-run: docker-clean
-	docker run --net=host -d -ti --name=$(NAME) --env-file=$(NAME).env --volume=$(HOST_VOLUME):/data/secrets $(IMAGE):$(TAG)
+	docker run --net=host -d -ti --name=$(NAME) --env-file=$(NAME).env --volume=$(SECRETS_VOLUME):/data/secrets --volume=$(AUTH_VOLUME):/data/authdb $(IMAGE):$(TAG)
 	docker logs -f $(NAME)
