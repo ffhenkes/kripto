@@ -1,6 +1,6 @@
 * Kripto
 
-This a simple PoC to encrypt and create secrets to a file and also decrypt and retrieve these from file.
+This is a simple PoC to encrypt and create secrets to a file and also decrypt and retrieve these from file.
 Kripto uses self-signed certificates to keep things wrapped under ssl. One can always replace those with an actual valid CA.
 
 ** SSL
