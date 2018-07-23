@@ -8,7 +8,9 @@ import (
 	"github.com/NeowayLabs/logger"
 	"github.com/benthor/gocli"
 	"github.com/ffhenkes/kripto/algo"
+	"github.com/ffhenkes/kripto/auth"
 	"github.com/ffhenkes/kripto/fs"
+	"github.com/ffhenkes/kripto/model"
 )
 
 const (
@@ -59,9 +61,15 @@ func main() {
 			return res
 		}
 
-		user := input[0]
-		passwd := string(algo.MakeSimpleHash(input[1]))
-		user_string := fmt.Sprintf("%s@%s", user, passwd)
+		c := model.Credentials{
+			Username: input[0],
+			Password: input[1],
+		}
+
+		login := auth.NewLogin(&c)
+
+		passwd := login.HashPassword()
+		user_string := fmt.Sprintf("%s@%s", c.Username, passwd)
 
 		symmetrical := algo.NewSymmetrical()
 		data, err := symmetrical.Encrypt([]byte(user_string), passphrase)
@@ -71,13 +79,13 @@ func main() {
 		}
 
 		sys := fs.NewFileSystem(path)
-		err = sys.MakeAuth(fmt.Sprintf("%s", user), data)
+		err = sys.MakeAuth(fmt.Sprintf("%s", c.Username), data)
 		if err != nil {
-			res = fmt.Sprintf("Error creating authentication for user: %s", user)
+			res = fmt.Sprintf("Error creating authentication for user: %s", c.Username)
 			return res
 		}
 
-		res = "\"" + user + "@***********\""
+		res = "\"" + c.Username + "@***********\""
 		return fmt.Sprintf("User added successfully %s", res)
 	})
 
