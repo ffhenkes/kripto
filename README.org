@@ -24,6 +24,22 @@ make build
 make run
 #+END_EXAMPLE
 
+** Test
+
+Before running tests be sure to have created the private and public rsa keys for the app.
+
+One can run as below in order to do that:
+
+#+BEGIN_EXAMPLE
+make signature
+#+END_EXAMPLE
+
+Also remember to create and add permission to the default directories */data/rsa*, */data/authdb* and */data/secrets*
+
+#+BEGIN_EXAMPLE
+make test
+#+END_EXAMPLE
+
 ** Build container
 
 #+BEGIN_EXAMPLE

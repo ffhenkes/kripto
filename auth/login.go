@@ -23,6 +23,26 @@ func NewLogin(c *model.Credentials) *Login {
 	return &Login{c}
 }
 
+func (l *Login) AddCredentials(phrase string) error {
+
+	passwd := l.HashPassword()
+	user_string := fmt.Sprintf("%s@%s", l.Credentials.Username, passwd)
+
+	symmetrical := algo.NewSymmetrical()
+	data, err := symmetrical.Encrypt([]byte(user_string), phrase)
+	if err != nil {
+		return err
+	}
+
+	sys := fs.NewFileSystem(data_authdb)
+	err = sys.MakeAuth(fmt.Sprintf("%s", l.Credentials.Username), data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (l *Login) CheckCredentials(phrase string) (bool, error) {
 
 	sys := fs.NewFileSystem(data_authdb)

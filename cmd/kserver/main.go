@@ -24,7 +24,7 @@ func main() {
 	nr := routes.NewRouter(phrase)
 
 	// health check
-	r.GET("/v1", nr.Health)
+	r.GET("/v1/health", nr.Health)
 	r.POST("/v1/authenticate", nr.Authenticate)
 	r.POST("/v1/secrets", nr.CreateSecret)
 	r.GET("/v1/secrets", nr.GetSecretsByApp)

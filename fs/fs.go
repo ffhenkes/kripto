@@ -18,7 +18,12 @@ func NewFileSystem(path string) *FileSystem {
 
 func (fs *FileSystem) MakeAuth(filename string, data []byte) error {
 
-	err := touch(authdb(fs.path, filename), data)
+	err := mkdir(fs.path)
+	if err != nil {
+		return err
+	}
+
+	err = touch(authdb(fs.path, filename), data)
 	if err != nil {
 		return err
 	}
@@ -57,7 +62,13 @@ func (fs *FileSystem) ReadKey(keyname string) ([]byte, error) {
 }
 
 func (fs *FileSystem) MakeSecret(filename string, data []byte) error {
-	err := touch(secret(fs.path, filename), data)
+
+	err := mkdir(fs.path)
+	if err != nil {
+		return err
+	}
+
+	err = touch(secret(fs.path, filename), data)
 	if err != nil {
 		return err
 	}
@@ -85,7 +96,27 @@ func (fs *FileSystem) DeleteSecret(filename string) error {
 	return nil
 }
 
+func (fs *FileSystem) RemovePath() error {
+
+	err := os.RemoveAll(fs.path)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // helpers
+func mkdir(path string) error {
+
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func touch(out string, data []byte) error {
 
 	f, err := os.Create(out)
