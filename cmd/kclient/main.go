@@ -11,9 +11,9 @@ import (
 	"github.com/ffhenkes/kripto/model"
 )
 
-func main() {
+var logK = logger.Namespace("kripto.cli")
 
-	var logK = logger.Namespace("kripto.cli")
+func main() {
 
 	passphrase := os.Getenv("PHRASE")
 
@@ -23,16 +23,12 @@ func main() {
 
 	cli := gocli.MkCLI("Welcome to Kripto CLI! Type help for valid commands.")
 
-	// register help Option with cli.Help as callback
 	cli.AddOption("help", "prints this help message", cli.Help)
 
-	// register exit Option with cli.Exit as callback
 	cli.AddOption("exit", "exits the CLI", cli.Exit)
 
-	// register hidden quit Option with cli.Exit as callback. Should not appear in "help" list
 	cli.AddOption("quit", "", cli.Exit)
 
-	// demonstrate argument passing
 	cli.AddOption("add", "Creates a valid user for Kripto! Type: username@password", func(args []string) string {
 		res := ""
 
@@ -82,7 +78,6 @@ func main() {
 		return fmt.Sprintf("%s: command not found, type 'help' for help", args[0])
 	})
 
-	// run the main loop
 	cli.Loop("<kripto>::@ ")
 
 	fmt.Println("Good bye! Thank you for using Kripto!")
@@ -92,8 +87,8 @@ func main() {
 func normalizePassword(a []string) string {
 	var normal string = ""
 	for k, v := range a {
-		if k > 0 {
-			normal += v
+		if k > 1 {
+			normal += fmt.Sprintf("@%s", v)
 		}
 	}
 	return normal

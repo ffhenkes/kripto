@@ -9,7 +9,7 @@ deps:
 test: deps
 	go test -v -cover ./...
 
-build:
+build: test
 	cd cmd/kserver && make -e build
 
 build-cli:
