@@ -65,6 +65,7 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 	ok, err := login.CheckCredentials(router.phrase)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	if ok {
@@ -73,6 +74,7 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 		tokenString, err := jtoken.GenerateToken()
 		if err != nil {
 			serverError(w, err)
+			return
 		}
 
 		msg := map[string]string{"token": tokenString}
@@ -103,23 +105,27 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 	err = json.NewDecoder(r.Body).Decode(&sec_request)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	jsec, err := json.Marshal(sec_request)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	symmetrical := algo.NewSymmetrical()
 	cypher, err := symmetrical.Encrypt(jsec, router.phrase)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	sys := fs.NewFileSystem(data_secrets)
 	err = sys.MakeSecret(sec_request.App, cypher)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	responseHeader(w, http.StatusCreated)
@@ -143,6 +149,7 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 	data, err := sys.ReadSecret(app)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	var b []byte
@@ -178,6 +185,7 @@ func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request,
 	err = sys.DeleteSecret(app)
 	if err != nil {
 		serverError(w, err)
+		return
 	}
 
 	responseHeader(w, http.StatusNoContent)
@@ -187,7 +195,6 @@ func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request,
 func serverError(w http.ResponseWriter, err error) {
 	logR.Error("Server error %v", err)
 	responseHeader(w, http.StatusInternalServerError)
-	return
 }
 
 // responseHeader utilitary function to set the output response headers

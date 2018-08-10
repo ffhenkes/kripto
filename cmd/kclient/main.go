@@ -87,9 +87,15 @@ func main() {
 func normalizePassword(a []string) string {
 	var normal string = ""
 	for k, v := range a {
+
+		if k == 1 {
+			normal = fmt.Sprintf("%s", v)
+		}
+
 		if k > 1 {
 			normal += fmt.Sprintf("@%s", v)
 		}
+
 	}
 	return normal
 }
