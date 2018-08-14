@@ -13,36 +13,39 @@ import (
 var logJ = logger.Namespace("kripto.jwt")
 
 const (
-	data_rsa         = "/data/rsa"
-	private_key_name = "kripto.rsa"
-	public_key_name  = "kripto.rsa.pub"
-	sign_method      = "RS256"
-	time_frame       = 24
+	dataRsa        = "/data/rsa"
+	privateKeyName = "kripto.rsa"
+	publicKeyName  = "kripto.rsa.pub"
+	signMethod     = "RS256"
+	timeFrame      = 24
 )
 
 type (
+	// JwtAuth represent the json authorization token type
 	JwtAuth struct {
 		c *model.Credentials
 	}
 )
 
+// NewJwtAuth returns a reference for JwtAuth type and embed Credentials
 func NewJwtAuth(c *model.Credentials) *JwtAuth {
 	return &JwtAuth{c}
 }
 
+// GenerateToken uses Credentials to generate a new Jwt (json authorization token)
 func (jwta *JwtAuth) GenerateToken() (string, error) {
 
-	sys := fs.NewFileSystem(data_rsa)
+	sys := fs.NewFileSystem(dataRsa)
 
-	privateKey, err := sys.ReadKey(private_key_name)
+	privateKey, err := sys.ReadKey(privateKeyName)
 	if err != nil {
 		return "", err
 	}
 
-	token := jwt.New(jwt.GetSigningMethod(sign_method))
+	token := jwt.New(jwt.GetSigningMethod(signMethod))
 	token.Claims = &model.CustomClaims{
 		&jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * time_frame).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * timeFrame).Unix(),
 		},
 		jwta.c.Username,
 	}
@@ -60,11 +63,12 @@ func (jwta *JwtAuth) GenerateToken() (string, error) {
 	return tokenString, nil
 }
 
+// ValidateToken checks the token integrity
 func ValidateToken(authorization string) (bool, error) {
 
-	sys := fs.NewFileSystem(data_rsa)
+	sys := fs.NewFileSystem(dataRsa)
 
-	pub, err := sys.ReadKey(public_key_name)
+	pub, err := sys.ReadKey(publicKeyName)
 	if err != nil {
 		return false, err
 	}
@@ -79,14 +83,14 @@ func ValidateToken(authorization string) (bool, error) {
 		return verifyKey, nil
 	})
 
-	expires_at := time.Unix(token.Claims.(*model.CustomClaims).StandardClaims.ExpiresAt, 0)
+	expiresAt := time.Unix(token.Claims.(*model.CustomClaims).StandardClaims.ExpiresAt, 0)
 	username := token.Claims.(*model.CustomClaims).Username
 
 	if err != nil {
-		logJ.Warn("User: %s Non valid token! Expires At: %v", username, expires_at)
+		logJ.Warn("User: %s Non valid token! Expires At: %v", username, expiresAt)
 		return token.Valid, err
 	}
 
-	logJ.Info("User: %s Token Expires At: %v", username, expires_at)
+	logJ.Info("User: %s Token Expires At: %v", username, expiresAt)
 	return token.Valid, nil
 }

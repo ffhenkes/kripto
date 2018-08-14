@@ -9,14 +9,18 @@ import (
 )
 
 type (
+	// Symmetrical represents a collections of encryption and decryption symmetrical algorithms
+	// A symmetrical algorithm is the one that uses a single key to convert data
 	Symmetrical struct {
 	}
 )
 
+// NewSymmetrical returns a reference to the type and access to its funcionalities
 func NewSymmetrical() *Symmetrical {
 	return &Symmetrical{}
 }
 
+// Encrypt uses a passphrase to encrypt data using gcm algorithm
 func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
 	block, _ := aes.NewCipher(MakeSimpleHash(passphrase))
@@ -32,6 +36,7 @@ func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 	return ciphertext, nil
 }
 
+// Decrypt uses the encription passphrase to decrypt data to its original state
 func (s *Symmetrical) Decrypt(data []byte, passphrase string) ([]byte, error) {
 
 	key := MakeSimpleHash(passphrase)
@@ -52,6 +57,7 @@ func (s *Symmetrical) Decrypt(data []byte, passphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
+// MakeSimpleHash returns a bytes array with a sha256 hash encryption
 func MakeSimpleHash(key string) []byte {
 	hash := sha256.Sum256([]byte(key))
 	return hash[:]

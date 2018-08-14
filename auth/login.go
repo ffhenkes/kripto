@@ -10,42 +10,42 @@ import (
 )
 
 const (
-	data_authdb = "/data/authdb"
+	dataAuthdb = "/data/authdb"
 )
 
 type (
+	// Login is used to create and validate Credentials
 	Login struct {
 		Credentials *model.Credentials
 	}
 )
 
+// NewLogin returns a Login type with embed Credentials
 func NewLogin(c *model.Credentials) *Login {
 	return &Login{c}
 }
 
+// AddCredentials creates a new user file on the disk containing user and password data encrypted using the kripto built in passphrase
 func (l *Login) AddCredentials(phrase string) error {
 
 	passwd := l.HashPassword()
-	user_string := fmt.Sprintf("%s@%s", l.Credentials.Username, passwd)
+	userString := fmt.Sprintf("%s@%s", l.Credentials.Username, passwd)
 
 	symmetrical := algo.NewSymmetrical()
-	data, err := symmetrical.Encrypt([]byte(user_string), phrase)
+	data, err := symmetrical.Encrypt([]byte(userString), phrase)
 	if err != nil {
 		return err
 	}
 
-	sys := fs.NewFileSystem(data_authdb)
-	err = sys.MakeAuth(fmt.Sprintf("%s", l.Credentials.Username), data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	sys := fs.NewFileSystem(dataAuthdb)
+	err = sys.MakeAuth(l.Credentials.Username, data)
+	return err
 }
 
+// CheckCredentials retrieve the user data from file, decrypt it and returns a boolean sign
 func (l *Login) CheckCredentials(phrase string) (bool, error) {
 
-	sys := fs.NewFileSystem(data_authdb)
+	sys := fs.NewFileSystem(dataAuthdb)
 
 	data, err := sys.ReadAuth(l.Credentials.Username)
 	if err != nil {
@@ -67,15 +67,16 @@ func (l *Login) CheckCredentials(phrase string) (bool, error) {
 	output := strings.Split(string(b), "@")
 	username := output[0]
 	passwd := output[1]
-	hashed_passwd := l.HashPassword()
+	hashedPasswd := l.HashPassword()
 
-	if username == l.Credentials.Username && passwd == hashed_passwd {
+	if username == l.Credentials.Username && passwd == hashedPasswd {
 		return true, nil
 	}
 
 	return false, nil
 }
 
+// HashPassword create a string hash using sha256 built within the MakeSimpleHash algorithm
 func (l *Login) HashPassword() string {
 	return fmt.Sprintf("%x", algo.MakeSimpleHash(l.Credentials.Password))
 }

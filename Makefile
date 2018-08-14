@@ -4,9 +4,13 @@ export $(shell sed 's/=.*//' docker.env)
 all: build test
 
 deps:
+	go get -u $(LINT)
 	go get -v -t ./...
 
-test: deps
+lint:
+	gometalinter --config=.gometalinter.json ./...
+
+test: deps lint
 	go test -v -cover ./...
 
 build: test

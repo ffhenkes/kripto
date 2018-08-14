@@ -17,19 +17,17 @@ import (
 var logR = logger.Namespace("kripto.router")
 
 const (
-	data_secrets = "/data/secrets"
+	dataSecrets = "/data/secrets"
 )
 
 type (
+	// Router represents the http api router that embed the built in passphrase for encryption
 	Router struct {
 		phrase string
 	}
-
-	Health struct {
-		Msg string `json:"msg"`
-	}
 )
 
+// NewRouter returns an http Router reference with the embedded kripto built in passphrase
 func NewRouter(phrase string) *Router {
 	return &Router{phrase}
 }
@@ -37,8 +35,8 @@ func NewRouter(phrase string) *Router {
 // Health is a simple health check to verify the basic app running state
 func (router *Router) Health(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
-	health := Health{
-		Msg: "I'm alive!",
+	health := map[string]string{
+		"msg": "I'm alive!",
 	}
 
 	h, err := json.Marshal(health)
@@ -100,15 +98,15 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 
-	sec_request := model.Secret{}
+	secRequest := model.Secret{}
 
-	err = json.NewDecoder(r.Body).Decode(&sec_request)
+	err = json.NewDecoder(r.Body).Decode(&secRequest)
 	if err != nil {
 		serverError(w, err)
 		return
 	}
 
-	jsec, err := json.Marshal(sec_request)
+	jsec, err := json.Marshal(secRequest)
 	if err != nil {
 		serverError(w, err)
 		return
@@ -121,8 +119,8 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 
-	sys := fs.NewFileSystem(data_secrets)
-	err = sys.MakeSecret(sec_request.App, cypher)
+	sys := fs.NewFileSystem(dataSecrets)
+	err = sys.MakeSecret(secRequest.App, cypher)
 	if err != nil {
 		serverError(w, err)
 		return
@@ -144,7 +142,7 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 
 	app := r.URL.Query().Get("app")
 
-	sys := fs.NewFileSystem(data_secrets)
+	sys := fs.NewFileSystem(dataSecrets)
 
 	data, err := sys.ReadSecret(app)
 	if err != nil {
@@ -180,7 +178,7 @@ func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request,
 
 	app := r.URL.Query().Get("app")
 
-	sys := fs.NewFileSystem(data_secrets)
+	sys := fs.NewFileSystem(dataSecrets)
 
 	err = sys.DeleteSecret(app)
 	if err != nil {

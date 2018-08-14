@@ -85,11 +85,11 @@ func main() {
 }
 
 func normalizePassword(a []string) string {
-	var normal string = ""
+	normal := ""
 	for k, v := range a {
 
 		if k == 1 {
-			normal = fmt.Sprintf("%s", v)
+			normal = v
 		}
 
 		if k > 1 {

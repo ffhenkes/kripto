@@ -16,24 +16,24 @@ import (
 )
 
 const (
-	test_passphrase  = "avocado"
-	test_data_authdb = "/data/authdb"
-	test_user        = "ffhenkes"
-	test_passwd      = "test"
-	bad_password     = "penguim"
-	bad_username     = "jonah"
+	testPassphrase = "avocado"
+	testDataAuthdb = "/data/authdb"
+	testUser       = "ffhenkes"
+	testPasswd     = "test"
+	badPassword    = "penguim"
+	badUsername    = "jonah"
 )
 
 var c *model.Credentials
 var s *model.Secret
-var token string = ""
+var token string
 
 func TestHealth(t *testing.T) {
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/v1/health", nil)
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 	router.Health(res, req, nil)
 
 	status := res.Code
@@ -55,7 +55,7 @@ func TestShouldLogin(t *testing.T) {
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPost, "/v1/authenticate", bytes.NewReader(jc))
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 	router.Authenticate(res, req, nil)
 
 	status := res.Code
@@ -77,14 +77,14 @@ func TestShouldNotLogin(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	c.Password = bad_password
+	c.Password = badPassword
 
 	jc, _ := json.Marshal(c)
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPost, "/v1/authenticate", bytes.NewReader(jc))
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 	router.Authenticate(res, req, nil)
 
 	status := res.Code
@@ -106,14 +106,14 @@ func TestShouldNotFindUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	c.Username = bad_username
+	c.Username = badUsername
 
 	jc, _ := json.Marshal(c)
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPost, "/v1/authenticate", bytes.NewReader(jc))
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 	router.Authenticate(res, req, nil)
 
 	status := res.Code
@@ -157,7 +157,7 @@ func TestShouldCreateSecret(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodPost, "/v1/secrets", bytes.NewReader(jsec))
 	req.Header.Add("Authorization", token)
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 
 	router.CreateSecret(res, req, nil)
 
@@ -175,7 +175,7 @@ func TestShouldGetSecret(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "/v1/secrets?app=kripto_test", nil)
 	req.Header.Add("Authorization", token)
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 
 	router.GetSecretsByApp(res, req, nil)
 
@@ -202,7 +202,7 @@ func TestShouldDelSecret(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodDelete, "/v1/secrets?app=kripto_test", nil)
 	req.Header.Add("Authorization", token)
 
-	router := NewRouter(test_passphrase)
+	router := NewRouter(testPassphrase)
 
 	router.RemoveSecretsByApp(res, req, nil)
 
@@ -222,29 +222,21 @@ func TestShouldDelSecret(t *testing.T) {
 func before() error {
 
 	c = &model.Credentials{
-		Username: test_user,
-		Password: test_passwd,
+		Username: testUser,
+		Password: testPasswd,
 	}
 
 	l := auth.NewLogin(c)
-	err := l.AddCredentials(test_passphrase)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	err := l.AddCredentials(testPassphrase)
+	return err
 }
 
 func tearDown() error {
 
-	sys := fs.NewFileSystem(test_data_authdb)
+	sys := fs.NewFileSystem(testDataAuthdb)
 
 	err := sys.RemovePath()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func decodeSecret(r io.Reader) (*model.Secret, error) {

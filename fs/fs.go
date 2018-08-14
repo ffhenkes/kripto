@@ -7,15 +7,19 @@ import (
 )
 
 type (
+	// FileSystem reprsents the operations that can be performed into the file system.
+	// Such as create, read, delete
 	FileSystem struct {
 		path string
 	}
 )
 
+// NewFileSystem returns a new FileSystem reference with the embedded base path
 func NewFileSystem(path string) *FileSystem {
 	return &FileSystem{path}
 }
 
+// MakeAuth creates a file into the authdb directory that contains users (credentials)
 func (fs *FileSystem) MakeAuth(filename string, data []byte) error {
 
 	err := mkdir(fs.path)
@@ -24,13 +28,10 @@ func (fs *FileSystem) MakeAuth(filename string, data []byte) error {
 	}
 
 	err = touch(authdb(fs.path, filename), data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
+// ReadAuth reads the authdb refered file
 func (fs *FileSystem) ReadAuth(filename string) ([]byte, error) {
 
 	data, err := read(authdb(fs.path, filename))
@@ -41,16 +42,14 @@ func (fs *FileSystem) ReadAuth(filename string) ([]byte, error) {
 	return data, err
 }
 
+// DeleteAuth removes the specific auth file
 func (fs *FileSystem) DeleteAuth(filename string) error {
 
 	err := del(authdb(fs.path, filename))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
+// ReadKey reads the rsa key (public or private) from rsa directory
 func (fs *FileSystem) ReadKey(keyname string) ([]byte, error) {
 
 	key, err := read(rsa(fs.path, keyname))
@@ -61,6 +60,7 @@ func (fs *FileSystem) ReadKey(keyname string) ([]byte, error) {
 	return key, nil
 }
 
+// MakeSecret creates a new secret file into the secrets directory
 func (fs *FileSystem) MakeSecret(filename string, data []byte) error {
 
 	err := mkdir(fs.path)
@@ -69,13 +69,10 @@ func (fs *FileSystem) MakeSecret(filename string, data []byte) error {
 	}
 
 	err = touch(secret(fs.path, filename), data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
+// ReadSecret creates reads a specific secret from the secrets directory
 func (fs *FileSystem) ReadSecret(filename string) ([]byte, error) {
 
 	data, err := read(secret(fs.path, filename))
@@ -86,35 +83,25 @@ func (fs *FileSystem) ReadSecret(filename string) ([]byte, error) {
 	return data, err
 }
 
+// DeleteSecret removes a specific secret file
 func (fs *FileSystem) DeleteSecret(filename string) error {
 
 	err := del(secret(fs.path, filename))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
+// RemovePath drops the base path
 func (fs *FileSystem) RemovePath() error {
 
 	err := os.RemoveAll(fs.path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // helpers
 func mkdir(path string) error {
 
 	err := os.MkdirAll(path, os.ModePerm)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func touch(out string, data []byte) error {
@@ -143,11 +130,7 @@ func read(out string) ([]byte, error) {
 func del(out string) error {
 
 	err := os.Remove(out)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func rsa(p, f string) string {
