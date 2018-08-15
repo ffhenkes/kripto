@@ -23,13 +23,22 @@ func main() {
 
 	cli := gocli.MkCLI("Welcome to Kripto CLI! Type help for valid commands.")
 
-	cli.AddOption("help", "prints this help message", cli.Help)
+	err := cli.AddOption("help", "prints this help message", cli.Help)
+	if err != nil {
+		logK.Fatal("Critical failure!")
+	}
 
-	cli.AddOption("exit", "exits the CLI", cli.Exit)
+	err = cli.AddOption("exit", "exits the CLI", cli.Exit)
+	if err != nil {
+		logK.Fatal("Critical failure!")
+	}
 
-	cli.AddOption("quit", "", cli.Exit)
+	err = cli.AddOption("quit", "", cli.Exit)
+	if err != nil {
+		logK.Fatal("Critical failure!")
+	}
 
-	cli.AddOption("add", "Creates a valid user for Kripto! Type: username@password", func(args []string) string {
+	err = cli.AddOption("add", "Creates a valid user for Kripto! Type: username@password", func(args []string) string {
 		res := ""
 
 		size := len(args)
@@ -73,6 +82,9 @@ func main() {
 		res = "\"" + c.Username + "@***********\""
 		return fmt.Sprintf("User added successfully %s", res)
 	})
+	if err != nil {
+		logK.Fatal("Critical failure!")
+	}
 
 	cli.DefaultOption(func(args []string) string {
 		return fmt.Sprintf("%s: command not found, type 'help' for help", args[0])

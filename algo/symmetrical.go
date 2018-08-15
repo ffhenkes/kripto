@@ -23,7 +23,10 @@ func NewSymmetrical() *Symmetrical {
 // Encrypt uses a passphrase to encrypt data using gcm algorithm
 func (s *Symmetrical) Encrypt(data []byte, passphrase string) ([]byte, error) {
 
-	block, _ := aes.NewCipher(MakeSimpleHash(passphrase))
+	block, err := aes.NewCipher(MakeSimpleHash(passphrase))
+	if err != nil {
+		return nil, err
+	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return nil, err

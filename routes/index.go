@@ -76,7 +76,11 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 		}
 
 		msg := map[string]string{"token": tokenString}
-		m, _ := json.Marshal(msg)
+		m, err := json.Marshal(msg)
+		if err != nil {
+			serverError(w, err)
+			return
+		}
 
 		responseHeader(w, http.StatusCreated)
 		fmt.Fprintf(w, "%s", m)

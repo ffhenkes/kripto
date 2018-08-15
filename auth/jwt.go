@@ -13,11 +13,10 @@ import (
 var logJ = logger.Namespace("kripto.jwt")
 
 const (
-	dataRsa        = "/data/rsa"
-	privateKeyName = "kripto.rsa"
-	publicKeyName  = "kripto.rsa.pub"
-	signMethod     = "RS256"
-	timeFrame      = 24
+	dataRsa    = "/data/rsa"
+	keyName    = "kripto"
+	signMethod = "RS256"
+	timeFrame  = 24
 )
 
 type (
@@ -37,7 +36,7 @@ func (jwta *JwtAuth) GenerateToken() (string, error) {
 
 	sys := fs.NewFileSystem(dataRsa)
 
-	privateKey, err := sys.ReadKey(privateKeyName)
+	privateKey, err := sys.ReadKey(keyName)
 	if err != nil {
 		return "", err
 	}
@@ -68,7 +67,7 @@ func ValidateToken(authorization string) (bool, error) {
 
 	sys := fs.NewFileSystem(dataRsa)
 
-	pub, err := sys.ReadKey(publicKeyName)
+	pub, err := sys.ReadPublicKey(keyName)
 	if err != nil {
 		return false, err
 	}
