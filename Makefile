@@ -33,7 +33,7 @@ certificates:
 signature:
 	./scripts/signature.sh
 
-wrap: build build-cli
+wrap: certificates build build-cli
 	docker build -t $(IMAGE):$(TAG) .
 
 docker-clean:
