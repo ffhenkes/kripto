@@ -10,7 +10,9 @@ deps:
 lint:
 	gometalinter --exclude /usr/local/go ./...
 
-test: deps lint
+test: deps lint signature
+	mkdir -p /data/authdb
+	mkdir -p /data/secret
 	go test -v -cover ./...
 
 build: test
