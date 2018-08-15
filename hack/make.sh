@@ -16,7 +16,5 @@ shopt -u extglob dotglob
 
 cd $GOPATH/$SRC
 
-make deps
-
 echo 'calling make: '$COMMAND
 make $COMMAND
