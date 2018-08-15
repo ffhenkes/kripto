@@ -170,6 +170,9 @@ func touch(out string, data []byte) error {
 
 func read(out string) ([]byte, error) {
 
+	// the annotation below suppress gosec warning
+	// this particular case is solved by the sanitize function
+	/* #nosec */
 	data, err := ioutil.ReadFile(out)
 	if err != nil {
 		return nil, err
