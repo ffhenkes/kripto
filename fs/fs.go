@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	// FileSystem reprsents the operations that can be performed into the file system.
+	// FileSystem represent a type that loads operations that can be performed into the file system.
 	// Such as create, read, delete
 	FileSystem struct {
 		path string
