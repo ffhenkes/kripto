@@ -163,7 +163,8 @@ func touch(out string, data []byte) error {
 		return err
 	}
 
-	defer f.Close()
+	defer closeFile(f)
+
 	_, err = f.Write(data)
 	return err
 }
@@ -216,4 +217,11 @@ func authdb(p, f string) string {
 
 func secret(p, f string) string {
 	return fmt.Sprintf("%s/%s.secret", p, f)
+}
+
+func closeFile(f *os.File) {
+	err := f.Close()
+	if err != nil {
+		panic(err)
+	}
 }

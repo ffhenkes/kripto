@@ -45,7 +45,10 @@ func (router *Router) Health(w http.ResponseWriter, r *http.Request, p httproute
 	}
 
 	responseHeader(w, http.StatusOK)
-	fmt.Fprintf(w, "%s", h)
+	_, err = fmt.Fprintf(w, "%s", h)
+	if err != nil {
+		logR.Fatal("Bad output: %v", err)
+	}
 }
 
 // Authenticate is a method for validating user and password returning a signed JWT with 24h expiration time
@@ -83,7 +86,10 @@ func (router *Router) Authenticate(w http.ResponseWriter, r *http.Request, p htt
 		}
 
 		responseHeader(w, http.StatusCreated)
-		fmt.Fprintf(w, "%s", m)
+		_, err = fmt.Fprintf(w, "%s", m)
+		if err != nil {
+			logR.Fatal("Bad output: %v", err)
+		}
 		return
 
 	}
@@ -166,7 +172,10 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	responseHeader(w, http.StatusOK)
-	fmt.Fprintf(w, "%s", string(b))
+	_, err = fmt.Fprintf(w, "%s", string(b))
+	if err != nil {
+		logR.Fatal("Bad output: %v", err)
+	}
 }
 
 // RemoveSecretsByApp removes the required secret from the file system by app
