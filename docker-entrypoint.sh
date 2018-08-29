@@ -2,6 +2,6 @@
 
 set -e
 
-export PHRASE=$(cat .krpt)
+echo "Kripto server is up.."
 
 ./kserver

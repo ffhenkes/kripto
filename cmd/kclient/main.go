@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -12,14 +11,17 @@ import (
 	"github.com/ffhenkes/kripto/model"
 )
 
-var logK = logger.Namespace("kripto.cli")
+var (
+	// Phrase is loaded in build time with the encryption key
+	Phrase string
+)
 
 func main() {
 
-	passphrase := os.Getenv("PHRASE")
+	var logK = logger.Namespace("kripto.cli")
 
-	if "" == passphrase {
-		logK.Fatal("Missing passphrase! Export <PHRASE> before continue!")
+	if "" == Phrase {
+		logK.Fatal("Missing Phrase! Export <PHRASE> before continue!")
 	}
 
 	cli := gocli.MkCLI("Welcome to Kripto CLI! Type help for valid commands.")
@@ -88,7 +90,7 @@ func main() {
 		}
 
 		login := auth.NewLogin(&c)
-		ok := login.AddCredentials(passphrase)
+		ok := login.AddCredentials(Phrase)
 		if ok != nil {
 			res = "Error adding new credentials!!"
 			return res

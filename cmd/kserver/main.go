@@ -9,19 +9,24 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+var (
+	// Phrase is loaded in build time with the encryption key
+	Phrase string
+)
+
 func main() {
 
-	var logH = logger.Namespace("kripto")
-
-	var addr = os.Getenv("KRIPTO_ADDRESS")
-	var phrase = os.Getenv("PHRASE")
-	var crt = os.Getenv("CRT_PATH")
-	var key = os.Getenv("KEY_PATH")
+	var (
+		logH = logger.Namespace("kripto")
+		addr = os.Getenv("KRIPTO_ADDRESS")
+		crt  = os.Getenv("CRT_PATH")
+		key  = os.Getenv("KEY_PATH")
+	)
 
 	// Instantiate a new router
 	r := httprouter.New()
 
-	nr := routes.NewRouter(phrase)
+	nr := routes.NewRouter(Phrase)
 
 	// health check
 	r.GET("/v1/health", nr.Health)

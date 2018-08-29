@@ -11,7 +11,6 @@ RUN apk add --no-cache util-linux openssl \
     && mkdir -p /data/secrets \
     && mkdir -p /data/authdb \
     && mkdir -p /data/rsa \
-    && uuidgen > .krpt \
     && chmod +x entrypoint.sh \
     && chmod +x /usr/bin/kripto \
     && cd /data/rsa \
