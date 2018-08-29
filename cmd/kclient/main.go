@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/NeowayLabs/logger"
 	"github.com/benthor/gocli"
@@ -23,12 +24,12 @@ func main() {
 
 	cli := gocli.MkCLI("Welcome to Kripto CLI! Type help for valid commands.")
 
-	err := cli.AddOption("help", "prints this help message", cli.Help)
+	err := cli.AddOption("help", "prints this help message\n", cli.Help)
 	if err != nil {
 		logK.Fatal("Critical failure!")
 	}
 
-	err = cli.AddOption("exit", "exits the CLI", cli.Exit)
+	err = cli.AddOption("exit", "exits the CLI\n", cli.Exit)
 	if err != nil {
 		logK.Fatal("Critical failure!")
 	}
@@ -38,7 +39,7 @@ func main() {
 		logK.Fatal("Critical failure!")
 	}
 
-	err = cli.AddOption("add", "Creates a valid user for Kripto! Type: username@password", func(args []string) string {
+	err = cli.AddOption("useradd", "Creates a valid user for Kripto! \nOptionally an expiration time for the token can be specified, default expiration time is 24h. \nThe valid units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\". \nExample: useradd username@password 200m\n", func(args []string) string {
 		res := ""
 
 		size := len(args)
@@ -48,7 +49,7 @@ func main() {
 			return res
 		}
 
-		if size > 1 {
+		if size > 2 {
 			res = "Too many arguments! Use: username@password"
 			return res
 		}
@@ -67,9 +68,23 @@ func main() {
 			return res
 		}
 
+		var timeToExpire time.Duration
+		if len(args) > 1 {
+			timeToExpire, err = time.ParseDuration(args[1])
+			if err != nil {
+				res = "Error parsing time!!"
+				return res
+			}
+		}
+
+		if 0 == timeToExpire {
+			timeToExpire = 24 * time.Hour
+		}
+
 		c := model.Credentials{
-			Username: input[0],
-			Password: password,
+			Username:       input[0],
+			Password:       password,
+			TokenExpiresIn: timeToExpire,
 		}
 
 		login := auth.NewLogin(&c)

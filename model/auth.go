@@ -1,13 +1,18 @@
 package model
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+)
 
 type (
 	// Credentials represents the authentication model containing username and password
 	// This model will be embed into the Login and Jwt types
 	Credentials struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username       string        `json:"username"`
+		Password       string        `json:"password"`
+		TokenExpiresIn time.Duration `json:"token_expires_in"`
 	}
 
 	// CustomClaims represents the customizable model embed into the Jwt

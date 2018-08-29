@@ -16,7 +16,6 @@ const (
 	dataRsa    = "/data/rsa"
 	keyName    = "kripto"
 	signMethod = "RS256"
-	timeFrame  = 24
 )
 
 type (
@@ -44,7 +43,7 @@ func (jwta *JwtAuth) GenerateToken() (string, error) {
 	token := jwt.New(jwt.GetSigningMethod(signMethod))
 	token.Claims = &model.CustomClaims{
 		&jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * timeFrame).Unix(),
+			ExpiresAt: time.Now().Add(jwta.c.TokenExpiresIn).Unix(),
 		},
 		jwta.c.Username,
 	}

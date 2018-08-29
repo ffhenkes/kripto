@@ -2,7 +2,9 @@ package auth
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ffhenkes/kripto/algo"
 	"github.com/ffhenkes/kripto/fs"
@@ -29,7 +31,7 @@ func NewLogin(c *model.Credentials) *Login {
 func (l *Login) AddCredentials(phrase string) error {
 
 	passwd := l.HashPassword()
-	userString := fmt.Sprintf("%s@%s", l.Credentials.Username, passwd)
+	userString := fmt.Sprintf("%s@%s@%d", l.Credentials.Username, passwd, l.Credentials.TokenExpiresIn)
 
 	symmetrical := algo.NewSymmetrical()
 	data, err := symmetrical.Encrypt([]byte(userString), phrase)
@@ -68,6 +70,13 @@ func (l *Login) CheckCredentials(phrase string) (bool, error) {
 	username := output[0]
 	passwd := output[1]
 	hashedPasswd := l.HashPassword()
+
+	t, err := strconv.Atoi(output[2])
+	if err != nil {
+		return false, err
+	}
+
+	l.Credentials.TokenExpiresIn = time.Duration(t)
 
 	if username == l.Credentials.Username && passwd == hashedPasswd {
 		return true, nil
