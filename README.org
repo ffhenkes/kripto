@@ -54,14 +54,15 @@ make docker-run
 
 ** Usage
 
-Add user from kripto CLI
+Add user from kripto CLI. One can optionally pass a time value for token duration, default expiration time is 24h.
+
+Valid units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 
 #+BEGIN_EXAMPLE
-export PHRASE=$(cat .krpt)
-kripto
+user@machine:~$ kripto
 
 Welcome to Kripto CLI! Type help for valid commands.
-<kripto>::@ add ffhenkes@test
+<kripto>::@ useradd ffhenkes@test 30m
 User added successfully "ffhenkes@***********"
 <kripto>::@ quit
 
