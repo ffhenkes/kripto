@@ -24,7 +24,7 @@ func NewFileSystem(path string) *FileSystem {
 // MakeAuth creates a file into the authdb directory that contains users (credentials)
 func (fs *FileSystem) MakeAuth(filename string, data []byte) error {
 
-	s, err := sanitize(filename)
+	err := sanitize(filename)
 	if err != nil {
 		return err
 	}
@@ -33,19 +33,19 @@ func (fs *FileSystem) MakeAuth(filename string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	err = touch(authdb(fs.path, s), data)
+	err = touch(authdb(fs.path, filename), data)
 	return err
 }
 
 // ReadAuth reads the authdb refered file
 func (fs *FileSystem) ReadAuth(filename string) ([]byte, error) {
 
-	s, err := sanitize(filename)
+	err := sanitize(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := read(authdb(fs.path, s))
+	data, err := read(authdb(fs.path, filename))
 	if err != nil {
 		return nil, err
 	}
@@ -56,24 +56,24 @@ func (fs *FileSystem) ReadAuth(filename string) ([]byte, error) {
 // DeleteAuth removes the specific auth file
 func (fs *FileSystem) DeleteAuth(filename string) error {
 
-	s, err := sanitize(filename)
+	err := sanitize(filename)
 	if err != nil {
 		return err
 	}
 
-	err = del(authdb(fs.path, s))
+	err = del(authdb(fs.path, filename))
 	return err
 }
 
 // ReadKey reads the rsa private key from rsa directory
 func (fs *FileSystem) ReadKey(keyname string) ([]byte, error) {
 
-	s, err := sanitize(keyname)
+	err := sanitize(keyname)
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := read(rsa(fs.path, s))
+	key, err := read(rsa(fs.path, keyname))
 	if err != nil {
 		return nil, err
 	}
@@ -84,12 +84,12 @@ func (fs *FileSystem) ReadKey(keyname string) ([]byte, error) {
 // ReadPublicKey reads the rsa public key from rsa directory
 func (fs *FileSystem) ReadPublicKey(keyname string) ([]byte, error) {
 
-	s, err := sanitize(keyname)
+	err := sanitize(keyname)
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := read(rsapub(fs.path, s))
+	key, err := read(rsapub(fs.path, keyname))
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (fs *FileSystem) ReadPublicKey(keyname string) ([]byte, error) {
 // MakeSecret creates a new secret file into the secrets directory
 func (fs *FileSystem) MakeSecret(filename string, data []byte) error {
 
-	s, err := sanitize(filename)
+	err := sanitize(filename)
 	if err != nil {
 		return err
 	}
@@ -110,19 +110,19 @@ func (fs *FileSystem) MakeSecret(filename string, data []byte) error {
 		return err
 	}
 
-	err = touch(secret(fs.path, s), data)
+	err = touch(secret(fs.path, filename), data)
 	return err
 }
 
 // ReadSecret creates reads a specific secret from the secrets directory
 func (fs *FileSystem) ReadSecret(filename string) ([]byte, error) {
 
-	s, err := sanitize(filename)
+	err := sanitize(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := read(secret(fs.path, s))
+	data, err := read(secret(fs.path, filename))
 	if err != nil {
 		return nil, err
 	}
@@ -133,12 +133,12 @@ func (fs *FileSystem) ReadSecret(filename string) ([]byte, error) {
 // DeleteSecret removes a specific secret file
 func (fs *FileSystem) DeleteSecret(filename string) error {
 
-	s, err := sanitize(filename)
+	err := sanitize(filename)
 	if err != nil {
 		return err
 	}
 
-	err = del(secret(fs.path, s))
+	err = del(secret(fs.path, filename))
 	return err
 }
 
@@ -188,19 +188,19 @@ func del(out string) error {
 	return err
 }
 
-func sanitize(input string) (string, error) {
+func sanitize(input string) error {
 
-	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	s := reg.ReplaceAllString(input, "")
-	if "" == s {
-		return "", errors.New("sanitize: empty string")
+	hasMatch := reg.MatchString(input)
+	if hasMatch {
+		return errors.New("sanitize: bad or malicious characters found")
 	}
 
-	return s, nil
+	return nil
 }
 
 func rsa(p, f string) string {

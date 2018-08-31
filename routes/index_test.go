@@ -196,6 +196,31 @@ func TestShouldGetSecret(t *testing.T) {
 	}
 }
 
+func TestShouldNotCreateSecretWithBadInput(t *testing.T) {
+
+	s = &model.Secret{
+		App:  "../../../../../etc/passwd",
+		Vars: map[string]string{},
+	}
+
+	jsec, _ := json.Marshal(s)
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/v1/secrets", bytes.NewReader(jsec))
+	req.Header.Add("Authorization", token)
+
+	router := NewRouter(testPassphrase)
+
+	router.CreateSecret(res, req, nil)
+
+	status := res.Code
+
+	if status != http.StatusInternalServerError {
+		t.Errorf("Bad status! Got %v expected %v", status, http.StatusInternalServerError)
+	}
+
+}
+
 func TestShouldDelSecret(t *testing.T) {
 
 	res := httptest.NewRecorder()

@@ -104,7 +104,7 @@ func (router *Router) CreateSecret(w http.ResponseWriter, r *http.Request, p htt
 
 	authorized, err := auth.ValidateToken(authorization)
 	if !authorized && err != nil {
-		responseHeader(w, http.StatusUnauthorized)
+		unauthorized(w, err)
 		return
 	}
 
@@ -146,7 +146,7 @@ func (router *Router) GetSecretsByApp(w http.ResponseWriter, r *http.Request, p 
 
 	authorized, err := auth.ValidateToken(authorization)
 	if !authorized && err != nil {
-		responseHeader(w, http.StatusUnauthorized)
+		unauthorized(w, err)
 		return
 	}
 
@@ -185,7 +185,7 @@ func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request,
 
 	authorized, err := auth.ValidateToken(authorization)
 	if !authorized && err != nil {
-		responseHeader(w, http.StatusUnauthorized)
+		unauthorized(w, err)
 		return
 	}
 
@@ -200,6 +200,12 @@ func (router *Router) RemoveSecretsByApp(w http.ResponseWriter, r *http.Request,
 	}
 
 	responseHeader(w, http.StatusNoContent)
+}
+
+// unauthorized utilitary to log the specific auth fail and returns 401
+func unauthorized(w http.ResponseWriter, err error) {
+	logR.Error("Unauthorized %v", err)
+	responseHeader(w, http.StatusUnauthorized)
 }
 
 // serverError utilitary to log the specific server problem and returns 500
